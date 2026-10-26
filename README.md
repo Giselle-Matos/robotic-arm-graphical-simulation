@@ -1,4 +1,19 @@
-﻿# Simulador de braco robotico
+﻿# to-do
+
+1 - Adicionar rotação no eixo da "punho"/pinça - 
+j/l ja estao configurados;
+configurar i/k pra mexer pra esquerda e direita;
+configurar tecla o para rotacionar o punho/pinça
+
+2 - adicionar tratamento de colisão
+
+3 - atualizar documentação pra rodar e compilar no linux
+
+```bash
+gcc ".\main.c" -o ".\main.exe" -lfreeglut -lopengl32 -lglu32 -lm
+```
+
+# Simulador de braco robotico
 
 Trabalho de Computacao Grafica em C, OpenGL classico e FreeGLUT.
 Estado: FK parcial com base, ombro e braco superior; sem selecao, captura ou colisao.
