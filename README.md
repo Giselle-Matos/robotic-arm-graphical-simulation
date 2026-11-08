@@ -1,94 +1,219 @@
-﻿# Simulador de braco robotico
+﻿# Simulador 3D de braço robótico
 
-Trabalho de Computacao Grafica em C, OpenGL classico e FreeGLUT.
-Estado: FK parcial com base, ombro e braco superior; sem selecao, captura ou colisao.
+Trabalho de Computação Gráfica: C11, OpenGL clássico, GLU e FreeGLUT, sem engine.
 
-## Compilar e executar no PowerShell
+## Executar a versão atual
 
-Ambiente encontrado e utilizado: GCC 16.2.0 e FreeGLUT x64 do MSYS2 UCRT64
-em C:\msys64\ucrt64. O GCC TDM no PATH nao encontra GL/glut.h.
-O script usa o compilador UCRT64 e ajusta o PATH apenas durante sua execucao,
-restaurando-o ao terminar. Nao exige reinstalar dependencias.
+Execute a versão completa, não os executáveis antigos da raiz ou de etapas anteriores:
 
 ```powershell
-.\compilar.ps1
-.\build\robotic_arm.exe
-# Ou compilar e abrir:
-.\compilar.ps1 -Executar
+.\build\robotic_arm_revisado.exe
 ```
 
-Comando de compilacao usado pelo script, com UCRT64 no PATH do processo:
+Fluxo recomendado: **clique no bloco 01 → T → espere o contorno verde → Espaço
+→ Y → espere chegar ao destino → Espaço**. Repita para os blocos 02 e 03.
+O painel mostra **Destino 3/3 / Tarefa concluída** quando todos estiverem apoiados
+inteiramente na região verde. **F5** reinicia e demonstra o fluxo completo dos
+três blocos usando os mesmos cálculos, colisões e movimentos do modo manual.
+**C** ou uma tecla de junta cancela o movimento automático.
+
+Materiais para a apresentação:
+
+- [Texto dissertativo: funcionamento completo e cinemática inversa](FUNCIONAMENTO_DO_CODIGO.md)
+- [Texto de estudo em PDF, com marcadores por assunto](FUNCIONAMENTO_DO_CODIGO.pdf)
+- [Roteiro e alterações ao vivo](APRESENTACAO.md)
+- [Slides em PDF](APRESENTACAO.pdf)
+- [Validações executadas e checklist](VALIDACAO.md)
+- [Planejamento e estado final](PLANEJAMENTO.md)
+
+## Compilar e testar
+
+Ambiente existente: MSYS2 UCRT64 em `C:\msys64\ucrt64`, GCC e FreeGLUT x64.
+Os scripts usam esse compilador explicitamente e restauram o PATH ao terminar.
 
 ```powershell
-& 'C:\msys64\ucrt64\bin\gcc.exe' -m64 main.c -o build\robotic_arm.exe -Wall -Wextra -lfreeglut -lopengl32 -lglu32 -lm
+.\compilar.ps1 -NomeExecutavel robotic_arm_revisado -Executar
+.\testar.ps1
+# Opcional: teste real de renderização/controles, em janela oculta:
+.\testar_interface.ps1
 ```
 
-O script cria build e copia libfreeglut.dll de C:\msys64\ucrt64\bin para
-junto do novo executavel. O executavel antigo da raiz e preservado.
-Dependencias continuam na instalacao existente; nao e um pacote portavel.
-Nao usar as bibliotecas GLUT lib32 do TDM nesta compilacao de 64 bits.
+Se o executável estiver aberto, feche a janela antes de recompilá-lo ou escolha
+outro `-NomeExecutavel`. A DLL idêntica já instalada não é sobrescrita.
+Para outra instalação, todos os scripts aceitam `-DiretorioUcrt 'D:\msys64\ucrt64'`.
+Fontes e saída são resolvidos pela pasta do script; podem ser chamados por caminho
+absoluto. C11 x64 com `-Wall -Wextra -Wpedantic`; testes também usam `-Werror`.
+Não basta compilar apenas main.c. O diretório build é ignorado pelo Git.
+`fontes.ps1` centraliza as listas usadas pelos três scripts, separando lógica
+e desenho. O estilo de C está registrado em `.clang-format`; o formatador não
+é necessário para compilar ou executar.
 
-## Controles e teste manual
+## Revisão de legibilidade
 
-- Setas ou botao direito + arrastar: orbitar; testar elevacao de 10 a 80 graus.
-- + / -: zoom; testar limites. R: restaurar camera.
-- X: mostrar/ocultar eixos. Esc: sair.
-- Redimensionar: conferir proporcoes e profundidade.
-- Conferir tres blocos apoiados, bancada e destino verde sem cintilacao.
-- Orbitar para conferir oclusao e iluminacao fixa no mundo.
+Matrizes e referencial da garra têm uma única implementação compartilhada.
+A seleção usa a interseção de raio do módulo de colisões; o mouse separa
+conversão de coordenadas e intenção do usuário. A IK separa a solução do punho
+da posição dos elos, e o movimento separa execução de trechos e demonstração.
+Peças são identificadas pelo enum, sem grupos ou contadores redundantes.
+Parâmetros de geometria e amostragem estão nos cabeçalhos de configuração.
 
-Convencoes: Y para cima; bancada no plano XZ com topo Y=0; unidades arbitrarias.
-Blocos de lado 0,8 centrados em Y=0,4. X vermelho, Y verde, Z azul.
-A projecao e definida em Redimensionar e a camera em AplicarCamera.
-A luz e posicionada depois da camera para permanecer fixa no mundo.
-GL_NORMALIZE corrige as normais apos escalas; Caixa restaura a matriz.
+Comportamento e visual preservados: testes completos aprovados e sete capturas
+OpenGL idênticas às da versão anterior no mesmo ambiente. O texto de estudo
+explica a matemática, o fluxo entre módulos e como alterar o código.
 
-Compilacao e link passaram sem avisos; validacao visual ainda pendente.
-Veja PLANEJAMENTO.md.
+## Acabamento visual (08/11/2026)
 
-## FK parcial - etapa 2a
+Visual minimalista em **grafite, verde e cobre suave**, centralizado em
+`src/visual_config.h`. Plataforma lisa com uma borda discreta, blocos com chanfros
+e uma única identificação no topo, destino sem marcações decorativas e fundo
+com degradê sutil. O braço e a garra usam superfícies contínuas e acabamento
+acetinado, mantendo apenas trilhos, cursores e apoios essenciais ao mecanismo.
 
-- A/D: diminuir/aumentar giro da base (-180 a 180 graus).
-- W/S: aumentar/diminuir inclinacao do ombro (-70 a 70 graus).
-- B: restaurar base e ombro; R continua exclusivo da camera.
+O painel usa tipografia Helvetica, atalhos alinhados em duas colunas e uma
+barra de progresso discreta. Todos os controles continuam disponíveis. Os eixos
+começam ocultos; X os mostra quando necessário. Cobre aparece somente em pequenos
+destaques e no bloco 01. Veja [a garra em detalhe](docs/08_garra.png).
 
-Angulos no titulo da janela. Movimento discreto em passos de 5 graus;
-animacao temporal sera introduzida nas proximas partes da etapa 2.
-Base em (0,0,-1.5), altura 0.6; braco superior de comprimento 2.6.
-Ombro zero aponta para cima; angulo positivo inclina para +X local.
+Dimensões, captura, IK e colisões permanecem iguais. As simplificações são visuais.
 
-Teste: girar base com ombro inclinado; o segmento e o marcador azul devem
-acompanhar juntos. Alterar ombro: pedestal permanece fixo, marcador descreve
-um arco ao redor do ombro. Atingir ambos os limites e testar B e R separadamente.
-A cena inicial foi validada pelo usuario; esta nova geometria aguarda teste visual.
+## Controles
 
-## FK parcial - etapa 2b
+| Entrada | Ação |
+| --- | --- |
+| Clique esquerdo | Selecionar primeiro bloco visível; clique vazio desfaz seleção |
+| T | IK aproxima a garra do bloco selecionado |
+| Espaço | Pegar ou soltar sobre um apoio válido |
+| Y | IK transporta a carga até uma vaga livre no destino |
+| Ctrl + clique na cena | Alvo IK: X/Z no plano da bancada |
+| PgUp / PgDn | Altura Y desse alvo, mostrada no painel |
+| F5 | Reiniciar e demonstrar a entrega dos três blocos |
+| C ou tecla de junta | Cancelar movimento automático |
+| A / D | Base: esquerda / direita |
+| W / S | Ombro: levantar / baixar |
+| Q / E | Cotovelo: levantar / baixar antebraço |
+| J / L | Punho: levantar / baixar a pinça |
+| I / K | Inclinar a pinça para frente / trás |
+| O / P | Giro anti-horário / horário, visto da ponta para a palma |
+| F / G | Fechar / abrir manualmente a pinça livre |
+| V | Alternar limites mecânicos das juntas em FK |
+| B | Reiniciar braço, blocos, seleção, carga e tarefa |
+| Setas / botão direito + arrastar | Orbitar a câmera |
+| + ou = / − ou _ | Zoom |
+| R / X | Restaurar câmera / alternar eixos |
+| H / X no painel | Fechar ou abrir a ajuda lateral |
+| Esc | Encerrar |
 
-Q/E diminuem/aumentam o cotovelo em passos de 5 graus (-135 a 135).
-B restaura tambem o cotovelo para 60 graus. Zero alinha os dois segmentos;
-o angulo e relativo ao braco superior, com o mesmo sentido do ombro.
-Antebraco de comprimento 2.0; ombro elevado 0.5 acima do pedestal para
-reduzir interpenetracao visual da junta. Os eixos agora ficam em Y=0.04,
-acima do marcador de destino (topo Y=0.024), evitando contato entre superficies.
+Segure as teclas de junta; solte para parar. Repetição do teclado é ignorada.
+Maiúsculas e minúsculas têm o mesmo sentido em todos os controles. Shift+O
+agora faz a mesma ação de o. F/G não pegam nem soltam; a carga continua presa sem manter teclas pressionadas. Câmera pode
+ser movimentada durante a animação. Perder foco pausa a integração no Windows
+sem recuperar o tempo passado; controles mantidos são liberados.
 
-Teste: com B, variar apenas Q/E: braco superior permanece parado e a ponta
-move-se em arco centrado no cotovelo. Com cotovelo dobrado, variar W/S e A/D:
-ambos os segmentos acompanham. Testar limites, B, R e cotovelo zero.
-Ainda nao ha colisao: algumas combinacoes podem atravessar bancada, base
-ou blocos. Limites individuais nao garantem ausencia de colisao da cadeia.
-O enquadramento inicial pode cortar poses estendidas: use - para afastar.
+Cada tecla gira uma junta no referencial local do braço. Orbitar a câmera muda
+a aparência desse giro. T e Y permitem o posicionamento automático.
 
-## FK parcial - etapa 2c
+## Estados e pega assistida
 
-- J/L: diminuir/aumentar inclinacao do punho (-90 a 90 graus).
-- F/G: fechar/abrir os dedos (vao livre de 0 a 1.2, passos de 0.1).
-- B: restaurar juntas, incluindo punho em 45 graus e garra aberta.
+Contorno claro: selecionado; verde-claro: captura permitida; cobre: transportando.
+Seleção pelo mouse e captura são etapas distintas. Picking usa raio/OBB e
+considera oclusão por braço/bancada. Orbite a câmera se outro objeto ocultar o alvo.
 
-Punho de comprimento 0.45, palma de espessura 0.18 e dedos de comprimento
-0.9 e espessura 0.12. O vao maximo de 1.2 supera o lado 0.8 dos blocos.
-Dedos deslizam simetricamente no X local da palma; crescem no Y local.
-O punho inclina em Z local, com o mesmo sentido do ombro e cotovelo.
-Teste J/L: apenas punho e garra mudam de inclinacao. Teste F/G: palma
-permanece fixa e dedos se aproximam/afastam simetricamente, sem se atravessar.
-Teste toda a cadeia com A/D, W/S, Q/E e restaure com B.
-Fechar a garra ainda nao captura objetos. Sem colisao ou animacao temporal.
+Não é necessário fechar perfeitamente nem centralizar o bloco com precisão.
+A região de captura exige sobreposição útil longitudinal/de profundidade,
+abertura realizável e ausência de contato proibido com palma, braço e obstáculos.
+Os dedos podem deslizar lateralmente até 0,30 unidade, com ajuste gradual da
+abertura e do cursor; o objeto não é teleportado nem reposicionado ao agarrar.
+Os parâmetros estão em `src/simulacao_config.h`.
+
+A relação é calculada uma vez: `relativa = inversa(garra) * mundoBloco`.
+Cada pose aplica `mundoBloco = garraAtual * relativa`. O contato com os dois dedos
+é intencional. A carga continua colidindo com palma, outras partes do braço,
+bancada e demais blocos. Uma captura negada preserva completamente o estado.
+
+## Apoio, soltura e destino
+
+Apoio válido exige a pegada inteira sobre a bancada ou sobre a face superior de
+outro bloco; apoio parcial, ar, ocupação e atravessamento são rejeitados.
+A tolerância padrão de altura é 0,12 unidade e a inclinação admitida para um
+pequeno assentamento é 15°. A correção é testada em 64 amostras antes de confirmar.
+Se os dedos ainda interceptarem a pose assentada, abre antes de remover o vínculo.
+
+O destino é uma região decorativa sobre a bancada, sem espessura física adicional.
+Só conta um bloco solto, apoiado e inteiramente dentro da área verde, com margem.
+Pegar novamente um bloco remove sua contagem. Y escolhe uma vaga livre da grade;
+a tarefa termina quando os três blocos estão entregues. Não há queda física,
+força de atrito ou simulação de tombamento; essas simplificações são explícitas.
+
+## IK e planejamento
+
+O alvo é um referencial completo (posição + orientação) da garra. O solver puro,
+sem estado e sem OpenGL, faz:
+
+1. Subtrair o deslocamento garra–punho ao longo do Y local.
+2. Resolver base e dois segmentos planares pela lei dos cossenos.
+3. Testar até quatro ramos (cotovelo positivo/negativo e base oposta).
+4. Decompor a orientação restante em rotações Z–X–Y do punho.
+5. Rejeitar limites e tratar polos/alvos inválidos ou fora do alcance.
+
+Os limites IK sempre são respeitados. Mantendo a preferência anterior do usuário,
+FK inicia circular; **V** ativa os limites para a apresentação. Base/giro são juntas
+rotativas contínuas; ombro/cotovelo/punho/desvio têm intervalos configuráveis.
+Para iniciar com limites FK, altere `LIMITES_FK_INICIAIS` para 1. Não é possível
+ativá-los em uma pose já fora dos limites: use B antes. O PDF do professor exige
+limites por articulação; apresente o modo limitado e explique as juntas contínuas.
+
+O planejador tenta corredores de altura, retirando a carga para cima, recolhendo
+o braço, girando e descendo até o alvo. As soluções próximas da pose anterior são
+priorizadas. Cada trecho é verificado antes da execução e novamente a cada passo.
+Abrir a pinça perto de outra vaga ocupada pode colidir: por isso, levanta antes de
+abrir completamente. Um alvo inalcançável, limite ou caminho bloqueado nunca causa
+teletransporte. O painel distingue esses casos.
+
+Esse planejamento é deliberadamente pequeno e legível: não é uma busca completa
+no espaço de configurações. Pode negar um caminho que exigiria outra manobra;
+nesses casos use C, reposicione em FK e tente novamente. O mouse fornece posição
+com orientação vertical; T/Y usam os referenciais adequados à pega e colocação.
+
+## Arquitetura e matemática
+
+| Arquivo em src | Responsabilidade |
+| --- | --- |
+| aplicacao | Eventos, câmera/projeção, relógio, callbacks e mouse → raio |
+| braco | Pose privada; única escrita externa por AplicarPoseValidada |
+| braco_config / simulacao_config | Dimensões e parâmetros de comportamento |
+| juntas | Ângulos, equivalentes circulares, limites e interpolação |
+| cinematica / transformacao | FK, matrizes globais e álgebra de referenciais |
+| ik | Solver analítico puro para posição e orientação |
+| movimento | Planejamento, execução temporal e máquina de estados da demonstração |
+| manipulacao | Seleção, estado da carga e vínculo relativo |
+| apoio | Validação de apoio/assentamento, destino e vagas |
+| aabb / colisao | Árvore BVH de AABBs, OBB/SAT e trajetos |
+| braco_render / geometria | Desenho sem modificar a pose |
+| cena_dados / cena | Dados compartilhados, blocos mutáveis e desenho/destaque |
+| camera / painel | Câmera orbital e instruções recolhíveis |
+
+Y para cima, bancada em XZ com topo Y=0, base em (0,0,−1,5), ombro em Y=1,1.
+Matrizes coluna-principal com pós-multiplicação: mover ao pivô, girar localmente.
+Base gira em Y; ombro/cotovelo/punho usam −Z, desvio X e giro Y. Desenho e colisão
+usam as mesmas matrizes/dimensões. Normais por face, GL_NORMALIZE, luz fixa no
+mundo, profundidade, perspectiva e double buffering. Sem sombras projetadas.
+
+Relógio com passo fixo de 1/240 s; juntas 45°/s e abertura/cursor 0,6 unidade/s.
+Pausas de interface acima de 100 ms descartam o excedente para evitar saltos.
+A árvore AABB poda pares distantes e o SAT testa 15 eixos das caixas orientadas.
+Amostragem adaptativa limita soma angular a 0,25° e abertura/cursor a 0,005 por
+amostra. Não é CCD matemática. Encaixes de pivôs são exceções explícitas; pares de
+segmentos vizinhos usam núcleos reduzidos apenas para permitir a região da junta.
+Arestas e extremidades completas continuam sendo usadas contra a cena e a carga.
+
+## Evidências e limites de validação
+
+`testar.ps1`: controles isolados, 1.000 poses AABB × busca exaustiva, matrizes/FK,
+pega deslocada do bloco 01, apoio e ocupação, 400 FK→IK com orientação, polos,
+alvos inválidos/inalcançáveis, limites, cancelamento e entrega dos três blocos.
+Cada passo da tarefa verifica pose válida e ausência de colisão.
+
+`testar_interface.ps1`: OpenGL real em janela oculta, mouse/projeção, T, Espaço,
+Y, F5, contagem 3/3, cancelamento, limites e painel compacto. Gera PPM em build;
+as renderizações usadas nos slides estão em docs. Isso verifica código e desenho;
+a experiência com seu teclado/mouse ainda deve ser conferida pelo checklist.

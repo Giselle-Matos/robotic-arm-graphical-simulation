@@ -1,76 +1,84 @@
-﻿# Acompanhamento
+# Acompanhamento
 
-Atualizado em 26/10/2026.
+Atualizado em 08/11/2026.
 
-| Etapa | Estado | Tarefas e criterio de conclusao |
-| --- | --- | --- |
-| 0 - Preparacao | Concluida | Inspecionar, documentar compilacao reproduzivel e validar execucao. |
-| 1 - Cena | Concluida | Validar visualmente cena, camera, luz, profundidade e redimensionamento. |
-| 2 - Braco e FK | Em andamento | Hierarquia, pivos, limites, controles, animacao temporal e transformacao global da garra coerentes. |
-| 3 - Manipulacao | Pendente | Selecao, destaque, captura geometrica, transporte e soltura sobre apoio valido. |
-| 4 - Colisoes e FK completa | Pendente | Bloquear movimentos invalidos, preservar pose valida e testar tarefa completa. |
-| 5 - IK | Pendente | Apos FK completa: alvos, limites, degeneracoes e colisoes tratados. |
-| 6 - Apresentacao | Pendente | Conferir requisitos, documentar e demonstrar fluxo completo. |
+## Estado da entrega
 
-## Verificacoes realizadas
+| Item solicitado | Estado |
+| --- | --- |
+| Soltura válida, apoio, ocupação e destino | Implementado e testado |
+| Colisões da carga e contatos de pega | Integrados e testados no trajeto completo |
+| IK com orientação, alcance, limites e colisões | Implementada; solver + planejamento + execução |
+| Selecionar → aproximar → agarrar → transportar → soltar | Teste completo 3/3 aprovado |
+| Região de captura do bloco 01 | Ampliada com cursor lateral; regressão de 0,18 unidade aprovada |
+| Código legível e parâmetros adaptáveis | Módulos separados, enums e cabeçalhos de configuração |
+| Material de apresentação | Slides, roteiro e FUNCIONAMENTO_DO_CODIGO.md/.pdf |
+| Validação humana no desktop | Checklist em VALIDACAO.md para o usuário |
 
-- main.c corresponde a cena inicial; revisadas faces, normais, isolamento
-  de escalas, camera, projecao e luz. Nenhuma alteracao no codigo necessaria nesta inspecao.
-- Nao encontrados AGENTS.md no projeto ou ancestrais verificados,
-  PDF do enunciado ou perspectiva_com_luz.c na pasta da disciplina.
-- Git: main.c e README.md sem alteracoes iniciais; robotic_arm.exe
-  preexistente nao rastreado, preservado. Consultas com safe.directory
-  limitado ao comando, sem modificar configuracao global.
-- GCC TDM 10.3.0 x64: verificacao interrompida por GL/glut.h ausente.
-- FreeGLUT x64 encontrada em C:\msys64\ucrt64 com cabecalhos, bibliotecas e DLL.
-- Verificacao sintatica com cabecalhos explicitos passou sem avisos.
-- GCC UCRT64 16.2.0: compilacao e link com -Wall -Wextra passaram sem avisos.
-  Necessario adicionar UCRT64 ao PATH do processo para carregar auxiliares do GCC.
-- Novo executavel e DLL em build. Executavel antigo da raiz preservado.
-- Cena inicial validada visualmente pelo usuario em 26/10/2026 (controles e visualizacao OK).
+## Como usar
 
-## Etapa 2a - Base e ombro
+Executável atual: build/robotic_arm_revisado.exe.
+Clique no bloco, T, Espaço, Y, Espaço. F5 reinicia e executa os três blocos.
+Ctrl+clique indica alvo; PgUp/PgDn ajustam altura. C/teclas de junta cancelam IK.
+V ativa limites FK para apresentação; a IK sempre respeita limites.
 
-Implementados base em (0,0,-1.5), pedestal de altura 0.6, braco de comprimento
-2.6 e marcador do futuro cotovelo. Base gira em Y; ombro em Z local.
-Limites escolhidos: base -180 a 180 graus; ombro -70 a 70 graus para manter
-o segmento acima da bancada. Passos discretos de 5 graus nesta subetapa.
-Angulos exibidos no titulo; B restaura braco, R continua restaurando camera.
-Escalas isoladas em Caixa; ainda sem animacao temporal nem colisao.
+## Estrutura consolidada
 
-Validacao visual desta nova geometria pendente. Testar limites, independencia
-da camera e movimento do marcador azul acompanhando as duas articulacoes.
-Proximo passo: antebraco e cotovelo; depois animacao temporal e transformacoes
-globais para a logica. Etapa 2 completa continua em andamento.
-Enunciado original ainda precisa ser conferido quando disponivel.
+- braco_config.h: dimensões, velocidades e passo temporal.
+- simulacao_config.h: tolerâncias de captura/apoio, limites e parâmetros IK.
+- juntas.c: ângulos, equivalentes, limites e interpolação compartilhados.
+- ik.c: solver analítico puro, validação por FK e tratamento de singularidades.
+- movimento.c: corredores, validação prévia, execução e demonstração por estados.
+- manipulacao.c: seleção, pega explícita e vínculo relativo.
+- apoio.c: assentamento testado, apoio completo, destino e vagas.
+- colisao.c: pares explícitos de montagem, núcleos nas juntas e carga contra cena.
+- aplicacao.c/painel.c: controles e indicação clara dos estados.
+- fontes.ps1: lista única de fontes para compilação e verificações.
+- .clang-format: estilo de formatação C, sem dependência de execução.
 
-Verificacao da etapa 2a: compilacao e link via compilar.ps1 passaram sem avisos (-Wall -Wextra).
+## Verificações
 
-## Etapa 2b - Cotovelo e antebraco
+Ver VALIDACAO.md para comandos, resultados, limites e checklist.
+Testes incluem 1.000 poses de colisão, 400 FK→IK, pega deslocada do bloco 01,
+assentamento e tarefa completa com checagem por passo. Teste OpenGL confirma
+cliques/projeção, T/Espaço/Y/F5, 3/3, cancelamento e painel.
 
-Imagem enviada pelo usuario compativel com a etapa 2a: cena, cores e inclinacao
-esperadas. Junta do ombro parcialmente embutida no pedestal; elevado seu pivo
-em 0.5 com suporte. Pequenas marcas junto ao destino compativeis com eixo
-em Y=0.02 atravessando marcador de topo Y=0.024: eixos elevados para Y=0.04.
-Bordas serrilhadas permanecem como melhoria visual futura.
+## Enunciado e escolhas
 
-Adicionados cotovelo relativo (-135 a 135 graus, Q/E), antebraco de 2.0 e
-marcador do futuro punho. Pose inicial: base 0, ombro 25, cotovelo 60.
-Sem colisao nesta subetapa; limites permitem interpenetracoes em certas poses.
-Validacao visual e testes de hierarquia desta nova geometria pendentes.
-Proximo passo: punho e garra; animacao temporal e calculo de transformacoes
-globais continuam pendentes para concluir a etapa 2.
-Verificacao: executavel padrao bloqueado durante link (possivelmente aberto). Compilacao e link para build/robotic_arm_etapa2b.exe passaram sem avisos com -Wall -Wextra. Validacao visual pendente.
+PDF trabalho_final_2026-2 (1).pdf lido integralmente. Seleção/destaque, FK,
+animação, câmera, iluminação, hierarquia e colisões implementados. IK opcional
+do enunciado também implementada. Modo V aplica limites de ombro/cotovelo/punho/
+desvio; base e giro são rotativos contínuos. FK inicia livre para preservar a
+preferência anterior. Para iniciar limitado, LIMITES_FK_INICIAIS = 1.
 
-## Etapa 2c - Punho e garra
+## Limitações explícitas
 
-Etapa 2b validada pelo usuario. Adicionados punho relativo de -90 a 90 graus
-(J/L), palma e dois dedos paralelos (F/G). Abertura livre de 0 a 1.2 unidades;
-centros dos dedos em +/- (abertura + espessura) / 2. Espessura de 0.12,
-comprimento de 0.9, punho de 0.45. Pose inicial do punho: 45 graus.
-B restaura todas as juntas e a abertura. Angulos e abertura no titulo.
-Validacao visual desta subetapa pendente, conforme testes no README.
-Captura e colisoes permanecem nas etapas posteriores.
-Proximo passo: animacao temporal e transformacoes globais da garra para a logica.
-Etapa 2 ainda em andamento.
-Compilacao e link para build/robotic_arm_etapa2c.exe passaram sem avisos (-Wall -Wextra). Usado nome proprio para preservar execucoes anteriores abertas.
+Sem forças/atrito/queda; geometria por caixas; colisão amostrada e encaixes
+simplificados; planejamento por corredores não completo. Falhas de alcance,
+limite e colisão não alteram a pose validada. Não há pendência funcional nos
+quatro itens desta entrega; resta a conferência humana e estudo para apresentar.
+
+## Histórico
+
+26/10: cena, articulações, pinça e refatoração modular.
+07/11: movimento temporal, rotações livres, AABB e recuperação dos testes.
+Depois: captura/transporte, painel, giro inverso e ajustes de contato.
+Testes humanos mostraram precisão excessiva; substituída captura por fechamento
+por seleção + Espaço. Entrega atual completa apoio/destino, IK, validação e
+material para explicar e modificar a simulação em apresentação.
+
+## Estado visual e revisão de código — 08/11/2026
+
+Tema minimalista em grafite, verde e cobre, blocos numerados e ajuda recolhível.
+A/D = esquerda/direita; W/S = levantar/baixar; letras maiúsculas consistentes.
+
+Revisão de todos os fontes C, cabeçalhos, testes e scripts: formatação uniforme,
+remoção de duplicações matemáticas e de metadados, etapas menores para mouse,
+IK, árvore e animação, parâmetros compartilhados e comentários sobre decisões.
+Recursos, velocidades, limites, captura e visual mantidos. As sete capturas
+OpenGL são idênticas às anteriores, no mesmo ambiente. O fluxo 3/3 preserva
+4.425 passos no teste de demonstração.
+
+Texto dissertativo completo em FUNCIONAMENTO_DO_CODIGO.md e PDF, incluindo
+cinemática inversa, relação entre módulos e exemplos de alterações ao vivo.
+Gerador: docs/gerar_texto.py. Executável: build/robotic_arm_revisado.exe.
