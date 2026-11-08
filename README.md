@@ -1,4 +1,4 @@
-﻿# Simulador 3D de braço robótico
+# Simulador de braco robotico
 
 Trabalho de Computação Gráfica: C11, OpenGL clássico, GLU e FreeGLUT, sem engine.
 
@@ -217,3 +217,9 @@ Cada passo da tarefa verifica pose válida e ausência de colisão.
 Y, F5, contagem 3/3, cancelamento, limites e painel compacto. Gera PPM em build;
 as renderizações usadas nos slides estão em docs. Isso verifica código e desenho;
 a experiência com seu teclado/mouse ainda deve ser conferida pelo checklist.
+
+
+
+```bash
+gcc ".\main.c" -o ".\main.exe" -lfreeglut -lopengl32 -lglu32 -lm
+```
